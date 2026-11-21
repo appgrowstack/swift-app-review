@@ -17,6 +17,9 @@ foreground, nothing is presented over the screen, and the screen has been still 
 [swift-app-campaign](https://github.com/no-problem-dev/swift-app-campaign) does: a good outcome as
 the trigger, 7 days after first seen, once per app version, 60 days apart.
 
+> Developed in a private monorepo and copied here one way. Issues are welcome; pull requests are
+> not accepted.
+
 ## Features
 
 - **The system prompt only.** `RequestReviewAction`, called from the view tree. No custom dialog, no

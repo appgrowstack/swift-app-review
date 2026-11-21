@@ -16,6 +16,8 @@
 [swift-app-campaign](https://github.com/no-problem-dev/swift-app-campaign) の型 `review_ask` の件が決めます
 （きっかけは「役に立った」の出来事・最初に見てから7日・同じ版で1回・前回から60日）。
 
+> 開発は非公開のモノリポでしていて、ここへは片方向にコピーするだけです。Issueは受けます。PRは受けません。
+
 ## 特徴
 
 - **iOS のダイアログだけ。** 画面の側から `RequestReviewAction` を呼びます。自前のダイアログ・前置き・満足度での分岐・見返りはありません（審査 5.6.1・3.2.2(x)・3章の「filtered」）
