@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-21
+
+The package no longer decides when, whom or how often to ask. That is the `review_ask` campaign
+type of swift-app-campaign 0.2.0 (`CampaignTemplate.ReviewAsk`, a `system` placement that runs
+`request_review` at once): its triggers, audience and limits carry the rating rules (the third good
+outcome, 7 days after first seen, once per app version, 60 days apart). What is left is opening the
+system's rating prompt once the screen has settled. Not compatible with 0.3.
+
+### Changed (breaking)
+
+- `ReviewRequestBridge.requestReview(for:)` is now `requestSystemPrompt()`, with a discardable
+  `ReviewAskOutcome`. Pass it to the campaign engine:
+  `.requestReview { await review.requestSystemPrompt() }`. `pendingMoment` is gone.
+
+### Removed
+
+- The decision: `ReviewPolicy`, `ReviewMomentRule`, `ReviewScreenRule`, `ReviewCooldown`,
+  `ReviewRules`, `ReviewDecision`, `ReviewSkipReason`, `ReviewPrompter`, `ReviewAsker`, and the
+  vocabulary of signals, moments, blockers and scopes.
+- The own review screen's moment (`ReviewScreenMoment`, `present(_:)`, `markRated()`). The
+  `review_ask` template puts nothing in front of the system prompt (rating R2, R3).
+- State and its stores (`ReviewState`, `ReviewStateStore`, `UserDefaultsReviewStateStore`,
+  `InMemoryReviewStateStore`), `ReviewClock`, `ReviewDay`.
+- Metrics (`ReviewMetrics`, `ReviewMetricEvent`, `ReviewMetricsHandler`). The engine records
+  `campaign_shown` and `campaign_action_completed`.
+- `AppVersion`.
+- Feedback (`FeedbackDraft`, `Feedback`, `FeedbackMail`, `FeedbackSender`, `HTTPFeedbackSender`,
+  `MailFeedbackSender`, `MailComposerFeedbackSender`, `.feedbackMailComposer`). Support moves to
+  swift-app-support.
+- The `ReviewTesting` product.
+
 ## [0.3.0] - 2026-11-08
 
 ### Changed

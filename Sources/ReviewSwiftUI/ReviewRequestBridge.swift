@@ -3,35 +3,39 @@ import ReviewCore
 import StoreKit
 import SwiftUI
 
-/// The ``ReviewAsker`` that hands requests from ``ReviewPrompter`` to a view, which calls
-/// `RequestReviewAction`.
+/// Carries a request for the system's rating prompt from code outside the view tree to a view,
+/// which calls `RequestReviewAction`.
 ///
-/// `RequestReviewAction` only exists in the SwiftUI environment, so the prompter cannot call it.
-/// The bridge carries one pending request to whichever view applied
+/// `RequestReviewAction` only exists in the SwiftUI environment, so a campaign engine or any other
+/// caller cannot call it. The bridge carries one pending request to whichever view applied
 /// ``SwiftUICore/View/reviewRequests(_:suppressed:delay:)`` and waits for that view to call the
 /// system or give up.
 ///
+/// The bridge does not decide when, whom or how often to ask. That is the `review_ask` campaign's
+/// job (its trigger, audience and limits). Hand ``requestSystemPrompt()`` to the campaign engine as
+/// the `request_review` action:
+///
 /// ```swift
-/// @State private var bridge = ReviewRequestBridge()
+/// @State private var review = ReviewRequestBridge()
+///
+/// // CampaignEngine(…, actions: [.requestReview { await review.requestSystemPrompt() }], …)
 ///
 /// var body: some View {
 ///     RootView()
-///         .reviewRequests(bridge, suppressed: isSheetPresented)
+///         .reviewRequests(review, suppressed: isSheetPresented)
 /// }
 /// ```
 @MainActor
 @Observable
-public final class ReviewRequestBridge: ReviewAsker {
+public final class ReviewRequestBridge {
 
     struct Pending {
         let id: UUID
-        let moment: ReviewMoment
         let continuation: CheckedContinuation<ReviewAskOutcome, Never>
     }
 
     /// The request waiting for a view, observed by the host modifier.
-    public private(set) var pendingMoment: ReviewMoment?
-    private(set) var pendingID: UUID?
+    public private(set) var pendingID: UUID?
     @ObservationIgnored private var pending: Pending?
     @ObservationIgnored private var hosts = 0
 
@@ -40,14 +44,20 @@ public final class ReviewRequestBridge: ReviewAsker {
     /// Whether a view is attached to take requests.
     public var hasHost: Bool { hosts > 0 }
 
-    public func requestReview(for moment: ReviewMoment) async -> ReviewAskOutcome {
+    /// Asks the attached view to open the system's rating prompt once the screen has settled.
+    ///
+    /// Returns ``ReviewAskOutcome/requested`` when the system was called, and
+    /// ``ReviewAskOutcome/abandoned(_:)`` when the request was dropped first: no view is attached,
+    /// another request is waiting, the app left the foreground, something was presented over the
+    /// screen, or the view went away.
+    @discardableResult
+    public func requestSystemPrompt() async -> ReviewAskOutcome {
         guard hasHost else { return .abandoned(.noHost) }
         guard pending == nil else { return .abandoned(.alreadyPending) }
         return await withCheckedContinuation { continuation in
             let id = UUID()
-            pending = Pending(id: id, moment: moment, continuation: continuation)
+            pending = Pending(id: id, continuation: continuation)
             pendingID = id
-            pendingMoment = moment
         }
     }
 
@@ -69,7 +79,6 @@ public final class ReviewRequestBridge: ReviewAsker {
         guard let current = pending, current.id == id else { return }
         pending = nil
         pendingID = nil
-        pendingMoment = nil
         current.continuation.resume(returning: outcome)
     }
 }
@@ -113,18 +122,18 @@ struct ReviewRequestHost: ViewModifier {
 
 extension View {
 
-    /// Takes review requests from `bridge` and calls the system's review request for each, once
-    /// the screen has settled.
+    /// Takes requests from `bridge` and calls the system's review request for each, once the
+    /// screen has settled.
     ///
-    /// A request is dropped, and not counted, when the app is not in the foreground, when
-    /// `suppressed` is `true` (a sheet, a dialog or a permission prompt is showing), or when either
-    /// becomes true during `delay`. Apply it once, near the root.
+    /// A request is dropped when the app is not in the foreground, when `suppressed` is `true`
+    /// (a sheet, a dialog or a permission prompt is showing), or when either becomes true during
+    /// `delay`. Apply it once, near the root.
     ///
     /// - Parameters:
-    ///   - bridge: The asker the prompter was given
+    ///   - bridge: The bridge whose ``ReviewRequestBridge/requestSystemPrompt()`` the campaign calls
     ///   - suppressed: `true` while something is presented over the screen
     ///   - delay: How long the screen must stay settled first. The default 1.8 seconds is inside
-    ///     studio's rating rule R8 ("1.5 to 2 seconds after the animation stops").
+    ///     the rating rule R8 ("1.5 to 2 seconds after the animation stops").
     public func reviewRequests(
         _ bridge: ReviewRequestBridge,
         suppressed: Bool = false,
