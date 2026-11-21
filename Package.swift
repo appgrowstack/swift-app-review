@@ -1,13 +1,14 @@
 // swift-tools-version: 6.2
 import PackageDescription
 
-/// Asking for App Store ratings only through the system prompt, at moments the app declares, and
-/// taking feedback through a separate door that is open at any time.
+/// Opening the system's App Store rating prompt, and the write-a-review link for a settings row.
+///
+/// **It does not decide when, whom or how often to ask.** That is the `review_ask` campaign's job
+/// in swift-app-campaign (its trigger, audience and limits). This package only opens the prompt
+/// once the screen has settled.
 ///
 /// **No external dependencies.** SwiftPM resolves dependencies per package, so anything declared
-/// here lands on every consumer, including ones that use only the decision rules. The bridge to
-/// `swift-analytics` and an HTTP client both live in the app, in about twenty lines each
-/// (see DESIGN.md).
+/// here lands on every consumer. The campaign engine takes a closure, so nothing here imports it.
 let package = Package(
     name: "swift-review",
     platforms: [
@@ -15,21 +16,16 @@ let package = Package(
         .macOS(.v14)
     ],
     products: [
-        // Vocabulary, the pure decision, the prompter, ports, the UserDefaults store, the
-        // write-review link and feedback values. Foundation only: no StoreKit, no SwiftUI.
+        // The outcome of a request and the write-review link. Foundation only.
         .library(name: "ReviewCore", targets: ["ReviewCore"]),
-        // The only target that imports StoreKit. Calls `RequestReviewAction` from the view tree,
-        // and opens a feedback mail: the system composer (one attachment) or a `mailto:` link.
-        .library(name: "ReviewSwiftUI", targets: ["ReviewSwiftUI"]),
-        // Test doubles. **Never import this from a shipping target.**
-        .library(name: "ReviewTesting", targets: ["ReviewTesting"])
+        // The only target that imports StoreKit. Calls `RequestReviewAction` from the view tree.
+        .library(name: "ReviewSwiftUI", targets: ["ReviewSwiftUI"])
     ],
     targets: [
         .target(name: "ReviewCore"),
         .target(name: "ReviewSwiftUI", dependencies: ["ReviewCore"]),
-        .target(name: "ReviewTesting", dependencies: ["ReviewCore"]),
 
-        .testTarget(name: "ReviewCoreTests", dependencies: ["ReviewCore", "ReviewTesting"]),
-        .testTarget(name: "ReviewSwiftUITests", dependencies: ["ReviewSwiftUI", "ReviewTesting"])
+        .testTarget(name: "ReviewCoreTests", dependencies: ["ReviewCore"]),
+        .testTarget(name: "ReviewSwiftUITests", dependencies: ["ReviewSwiftUI"])
     ]
 )
