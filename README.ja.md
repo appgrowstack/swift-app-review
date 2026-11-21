@@ -52,10 +52,9 @@ struct ContentView: View {
 }
 ```
 
-### appgrowstack につなぐ
+### サーバーにつなぐ
 
-このパッケージは単体で使えます。appgrowstackを使うアプリでは、このパッケージでサーバーをつなぐ代わりに、
-コネクターのパッケージ [swift-appgrowstack](https://github.com/appgrowstack/swift-appgrowstack) の対応するtrait（SwiftPMのtraits）を有効にします。
+このパッケージは単体で使えます。サーバーにつなぐときは、このパッケージで送り先を書く代わりに、コネクターのパッケージ [swift-appgrowstack](https://github.com/appgrowstack/swift-appgrowstack) の対応するtrait（SwiftPMのtraits）を有効にします。
 
 ## ドキュメント
 

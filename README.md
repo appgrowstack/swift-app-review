@@ -58,11 +58,9 @@ struct ContentView: View {
 }
 ```
 
-### Connecting to appgrowstack
+### Connecting to a server
 
-The package works on its own. In an app that uses appgrowstack, enable the matching trait of the
-connector package [swift-appgrowstack](https://github.com/appgrowstack/swift-appgrowstack) (SwiftPM
-traits) instead of wiring a server in this package.
+The package works on its own. To connect it to a server, enable the matching trait of the connector package [swift-appgrowstack](https://github.com/appgrowstack/swift-appgrowstack) (SwiftPM traits) instead of wiring a server here.
 
 ## Documentation
 
