@@ -64,7 +64,7 @@ XcodeのProduct > Build Documentationで開けます。変更は [CHANGELOG.md](
 ## 入れ方
 
 ```swift
-.package(url: "https://github.com/appgrowstack/swift-app-review.git", .upToNextMinor(from: "0.4.0"))
+.package(url: "https://github.com/appgrowstack/swift-app-review.git", .upToNextMinor(from: "0.4.1"))
 ```
 
 ```swift

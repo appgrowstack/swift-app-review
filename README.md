@@ -71,7 +71,7 @@ are listed in [CHANGELOG.md](./CHANGELOG.md).
 ## Installation
 
 ```swift
-.package(url: "https://github.com/appgrowstack/swift-app-review.git", .upToNextMinor(from: "0.4.0"))
+.package(url: "https://github.com/appgrowstack/swift-app-review.git", .upToNextMinor(from: "0.4.1"))
 ```
 
 ```swift
