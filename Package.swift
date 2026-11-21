@@ -10,7 +10,7 @@ import PackageDescription
 /// **No external dependencies.** SwiftPM resolves dependencies per package, so anything declared
 /// here lands on every consumer. The campaign engine takes a closure, so nothing here imports it.
 let package = Package(
-    name: "swift-review",
+    name: "swift-app-review",
     platforms: [
         .iOS(.v17),
         .macOS(.v14)

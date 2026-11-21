@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- The package `name` in `Package.swift` is now `swift-app-review`, the same as the repository. Apps already refer to it as `package: "swift-app-review"` (SwiftPM takes the identity from the URL); only the manifest name was left over from before the rename.
+
 ## [0.4.0] - 2026-11-21
 
 The package no longer decides when, whom or how often to ask. That is the `review_ask` campaign
